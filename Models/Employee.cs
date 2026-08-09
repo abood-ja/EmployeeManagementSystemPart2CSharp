@@ -15,5 +15,10 @@ namespace EmployeeManagementSystemProject2.Models
         public decimal Salary { get; set; }
         public List<string> Skills { get; set; } = new List<string>();
 
+        public override string ToString()
+        {
+            return $"Employee[{Id}]: {Name}";
+        }
+
     }
 }
