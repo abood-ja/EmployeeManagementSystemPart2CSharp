@@ -18,7 +18,7 @@ namespace EmployeeManagementSystemProject2.Common
         {
             return $"Result: {(Success ? "Success":"Fail")}" +
                 $"Message: {Message}" +
-                $"Data: {(Success?Data?.ToString():"NoData")}";
+                $"Data: {(Data is not null?Data.ToString():"NoData")}";
         }
     }
 }
