@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static EmployeeManagementSystemProject2.Delegates.EmployeeFilter;
 
 namespace EmployeeManagementSystemProject2.Services
 {
@@ -77,7 +78,7 @@ namespace EmployeeManagementSystemProject2.Services
         {
             if (OnBoarding.Count == 0)
                 return new Result<Employee> { Success = false, Message = "Process Next Employee Failed:OnBoarding Queue is Empty", Data = null };
-            var emp=OnBoarding.Dequeue();
+            var emp = OnBoarding.Dequeue();
             ActiveEmployees.Add(emp);
             foreach (string skill in emp.Skills)
             {
@@ -95,7 +96,7 @@ namespace EmployeeManagementSystemProject2.Services
 
             Employee? emp = FindEmployeeById(employeeId);
 
-            if(emp is null)
+            if (emp is null)
                 return new Result<string> { Success = false, Message = "Adding a new skill Failed: employee does not exist", Data = skill };
 
 
@@ -108,6 +109,104 @@ namespace EmployeeManagementSystemProject2.Services
             Skills.Add(normalizedSkill);
             ActionHistory.Push($"Added skill {normalizedSkill} to {emp.Name}");
             return new Result<string> { Success = true, Message = $"Adding a new skill succeeded:EmployeeId[{emp.Id}], skill:{skill}" };
+        }
+        public List<Employee> FilterEmployee(EmployeeFilterByCondition Filter)
+        {
+
+            List<Employee> employees = new List<Employee>();
+            foreach (var emp in ActiveEmployees)
+            {
+                if (Filter(emp))
+                    employees.Add(emp);
+            }
+            return employees;
+
+        }
+
+        public decimal CalculateAverageSalary()
+        {
+            if (ActiveEmployees.Count == 0) return 0;
+            decimal totalSalary = 0;
+            foreach (var emp in ActiveEmployees)
+            {
+                totalSalary += emp.Salary;
+            }
+            return totalSalary / ActiveEmployees.Count;
+        }
+        public void DisplayDepartmentsReport()
+        {
+            Console.WriteLine("===== Department Report =====");
+            Console.WriteLine();
+
+            foreach (KeyValuePair<int, Department> pair in Departments)
+            {
+                int employeeCount = 0;
+
+                foreach (Employee employee in ActiveEmployees)
+                {
+                    if (employee.DepartmentId == pair.Key)
+                        employeeCount++;
+                }
+
+                Console.WriteLine($"{pair.Value.Name,-10}: {employeeCount} employees");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("=============================");
+        }
+
+        public void DisplayActionHistory()
+        {
+            Console.WriteLine("Action History:");
+
+            foreach (string action in ActionHistory)
+                Console.WriteLine(action);
+        }
+
+        public void DisplayCompanySkills()
+        {
+            Console.WriteLine("Company Skills:");
+
+            foreach (string skill in Skills)
+                Console.WriteLine(skill);
+        }
+
+        public List<Employee> GetAllEmployeesOfDepartmentById(int DepartmentId)
+        {
+            List<Employee> employees = new();
+            if (!Departments.TryGetValue(DepartmentId, out Department? department))
+                throw new InvalidOperationException($"Department Id {DepartmentId} does not exist.");
+            foreach (var emp in ActiveEmployees)
+            {
+                if (emp.DepartmentId == DepartmentId)
+                    employees.Add(emp);
+            }
+            return employees;
+        }
+
+        public Result<Employee> PromoteEmployee(int Id)
+        {
+            var emp = FindEmployeeById(Id);
+            if (emp is null)
+                return new Result<Employee>() { Message = "Promoting Failed!:the employee is null", Data = null, Success = false };
+            if(emp is Manager)
+                return new Result<Employee>() { Message = "Promoting Failed!:the employee is already manager", Data = emp, Success = false };
+            else
+            {
+                Manager manager = new Manager
+                {
+                    Id = emp.Id,
+                    Name = emp.Name,
+                    HireDate = emp.HireDate,
+                    DepartmentId = emp.DepartmentId,
+                    Salary = emp.Salary
+                };
+                int index = ActiveEmployees.IndexOf(emp);
+                ActiveEmployees[index] = manager;
+                return new Result<Employee>() { Message = "Promoting succeded!!", Data = manager, Success = true };
+
+            }
+
         }
     }
 }
