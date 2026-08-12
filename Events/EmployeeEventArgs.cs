@@ -2,7 +2,7 @@
 
 namespace EmployeeManagementSystemProject2.Services
 {
-    public class EmployeeEventArgs
+    public class EmployeeEventArgs : EventArgs
     {
         public Employee employee {  get; set; }
         public EmployeeEventArgs(Employee emp)

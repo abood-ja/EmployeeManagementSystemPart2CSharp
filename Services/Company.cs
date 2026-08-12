@@ -92,6 +92,8 @@ namespace EmployeeManagementSystemProject2.Services
             {
                 OnEmployeeProcessed?.Invoke(this, new EmployeeEventArgs(emp));
             }
+            ActionHistory.Push($"a new employee is now Active: Employee[{emp.Id}], EmployeeName: {emp.Name}");
+
             return new Result<Employee> { Success = true, Message = $"Process Next Employee Succedded: EmployeeId[{emp.Id}]", Data = emp };
         }
 
