@@ -88,11 +88,9 @@ namespace EmployeeManagementSystemProject2.Services
                 Skills.Add(skill);
             }
             ActionHistory.Push($"a new employee is now Active: Employee[{emp.Id}], EmployeeName: {emp.Name}");
-            if(OnEmployeeProcessed != null)
-            {
-                OnEmployeeProcessed?.Invoke(this, new EmployeeEventArgs(emp));
-            }
-            ActionHistory.Push($"a new employee is now Active: Employee[{emp.Id}], EmployeeName: {emp.Name}");
+            
+            OnEmployeeProcessed?.Invoke(this, new EmployeeEventArgs(emp));
+            
 
             return new Result<Employee> { Success = true, Message = $"Process Next Employee Succedded: EmployeeId[{emp.Id}]", Data = emp };
         }
@@ -213,10 +211,9 @@ namespace EmployeeManagementSystemProject2.Services
 
                 int index = ActiveEmployees.IndexOf(emp);
                 ActiveEmployees[index] = manager;
-                if (OnEmployeePromoted != null)
-                {
-                    OnEmployeePromoted?.Invoke(this,new EmployeeEventArgs(manager));
-                }
+                
+                OnEmployeePromoted?.Invoke(this,new EmployeeEventArgs(manager));
+                
                 return new Result<Employee>() { Message = "Promoting succeded!!", Data = manager, Success = true };
 
             }
