@@ -11,10 +11,9 @@ namespace EmployeeManagementSystemProject2.Services
 {
     public class Company
     {
-        public delegate void EmployeePromotionHandler(Employee employee);
-        public delegate void EmployeeProcessingHandler(Employee employee);
-        public event EmployeePromotionHandler OnEmployeePromoted;
-        public event EmployeeProcessingHandler OnEmployeeProcessed;
+        
+        public event EventHandler<EmployeeEventArgs>? OnEmployeePromoted;
+        public event EventHandler<EmployeeEventArgs>? OnEmployeeProcessed;
         List<Employee> ActiveEmployees = new List<Employee>();
         Dictionary<int, Department> Departments = new Dictionary<int, Department>();
         Queue<Employee> OnBoarding = new Queue<Employee>();
@@ -89,7 +88,10 @@ namespace EmployeeManagementSystemProject2.Services
                 Skills.Add(skill);
             }
             ActionHistory.Push($"a new employee is now Active: Employee[{emp.Id}], EmployeeName: {emp.Name}");
-            OnEmployeeProcessed(emp);
+            if(OnEmployeeProcessed != null)
+            {
+                OnEmployeeProcessed?.Invoke(this, new EmployeeEventArgs(emp));
+            }
             return new Result<Employee> { Success = true, Message = $"Process Next Employee Succedded: EmployeeId[{emp.Id}]", Data = emp };
         }
 
@@ -209,9 +211,9 @@ namespace EmployeeManagementSystemProject2.Services
 
                 int index = ActiveEmployees.IndexOf(emp);
                 ActiveEmployees[index] = manager;
-                if(OnEmployeePromoted != null)
+                if (OnEmployeePromoted != null)
                 {
-                    OnEmployeePromoted(manager);
+                    OnEmployeePromoted?.Invoke(this,new EmployeeEventArgs(manager));
                 }
                 return new Result<Employee>() { Message = "Promoting succeded!!", Data = manager, Success = true };
 
